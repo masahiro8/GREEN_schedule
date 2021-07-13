@@ -2,13 +2,27 @@
   <div class="schedule">
     <div class="scheduleInner" :style="getDaySize">
       <ScheduleTimeLabel
+        :timelabelHeight="timelabel_height"
         :cellRectWidth="cellRect.width"
         :totalTime="total_hours"
         :prevTime="prev_hours"
         :afterTime="after_hours"
-        :dayDivide="day_divide"
+        :hourDivide="hour_divide"
       />
+      <!-- 予定 -->
+      <SchedulePlanCell
+        v-for="(item, index) in getPlans"
+        :key="`plan_${item.id}`"
+        :index="index"
+        :item="item"
+        :cellRect="cellRect"
+        :hourDivide="hour_divide"
+        :today="getToday"
+        :todayStartX="getTodayStartX"
+        :marginTop="timelabel_height"
+      ></SchedulePlanCell>
       <div class="scheduleBackground" :style="getDaySize">
+        <!-- 背景グリッド -->
         <div
           v-for="(item, index) in cells"
           :key="`cell_${index}`"
@@ -16,6 +30,7 @@
           :class="`${getCellStatus(index)} cell_${index}`"
           :style="getCellStyle"
         ></div>
+        <!-- 罫線 -->
         <div
           v-for="(item, index) in getHorizontalLines"
           :key="`line_${index}`"
@@ -29,12 +44,13 @@
 
 <script>
 import ScheduleTimeLabel from "./components/ScheduleTimeLabel";
+import SchedulePlanCell from "./components/SchedulePlanCell";
 /**
  * 前後 12時間を加えて、全部で48時間の幅を持つ
  */
 
 //1時間の分割数
-const config_day_divide = 4;
+const config_hour_divide = 4;
 
 //当日前の時間
 const config_schedule_prev_hours = 12;
@@ -45,11 +61,13 @@ const config_schedule_hours =
   24 + config_schedule_prev_hours + config_schedule_after_hours;
 
 //スケジュールで表示する15分セルの数
-const config_all_cells = config_day_divide * config_schedule_hours;
+const config_all_cells = config_hour_divide * config_schedule_hours;
 
-//1スケジュールの高さ
+//1時間のセルのサイズ(px)
+const config_cell_width = 8;
 const config_cell_height = 32;
-const config_cell_width = 42;
+
+const config_timelabel_height = 15;
 
 //作業時間帯仮データ
 // const work_timeframe = { startTime: "12:00", endTime: "18:00" };
@@ -60,56 +78,81 @@ const config_cell_width = 42;
 export default {
   components: {
     ScheduleTimeLabel,
+    SchedulePlanCell,
   },
   data: () => {
     return {
-      plans: [
-        {
-          id: 1,
-          type: 1,
-          startTime: "2021-01-01 12:30:00",
-          endTime: "2021-01-01 13:30:00",
-        },
-        {
-          id: 2,
-          type: 1,
-          startTime: "2021-01-01 14:30:00",
-          endTime: "2021-01-01 15:30:00",
-        },
-        {
-          id: 3,
-          type: 1,
-          startTime: "2021-01-01 20:30:00",
-          endTime: "2021-01-01 20:30:00",
-        },
-        {
-          id: 4,
-          type: 1,
-          startTime: "2021-01-01 20:30:00",
-          endTime: "2021-01-01 20:30:00",
-        },
-      ],
+      response: {
+        date: "2021-01-01 00:00:00",
+        plans: [
+          {
+            id: 1,
+            type: 1,
+            startTime: "2021-01-01 00:00:00",
+            endTime: "2021-01-01 4:30:00",
+          },
+          {
+            id: 2,
+            type: 1,
+            startTime: "2021-01-01 14:30:00",
+            endTime: "2021-01-01 15:30:00",
+          },
+          {
+            id: 3,
+            type: 1,
+            startTime: "2021-01-01 20:30:00",
+            endTime: "2021-01-01 21:30:00",
+          },
+          {
+            id: 4,
+            type: 1,
+            startTime: "2021-01-01 20:30:00",
+            endTime: "2021-01-02 00:30:00",
+          },
+        ],
+      },
       cells: config_all_cells,
       total_hours: config_schedule_hours,
       prev_hours: config_schedule_prev_hours,
       after_hours: config_schedule_after_hours,
       cellRect: { width: config_cell_width, height: config_cell_height },
-      day_divide: config_day_divide,
+      hour_divide: config_hour_divide,
+      timelabel_height: config_timelabel_height,
     };
   },
   computed: {
+    getPlans() {
+      const { plans } = this.response;
+      return plans;
+    },
+    getToday() {
+      const { date } = this.response;
+      return date;
+    },
+    //スケジュールの大きさを表示する時間範囲によって変更
     getDaySize() {
-      return `width: ${config_all_cells * 24}px;height:${
-        this.plans.length * config_cell_height + 24
+      const { plans } = this.response;
+      return `width: ${config_all_cells * config_cell_width}px;height:${
+        plans.length * config_cell_height + config_timelabel_height
       }px`;
     },
+    //スケジュールの予定量にあわせて罫線を作成
     getHorizontalLines() {
-      return [...new Array(this.plans.length)];
+      const { plans } = this.response;
+      return [...new Array(plans.length)];
     },
+    //スケジュールのグリッドのスタイルを作成
     getCellStyle() {
+      const { plans } = this.response;
       return `width:${this.cellRect.width}px;height:${
-        this.cellRect.height * this.plans.length
+        this.cellRect.height * plans.length
       }px;`;
+    },
+    //今日の開始ピクセル位置
+    getTodayStartX() {
+      const prevWidth =
+        config_schedule_prev_hours * this.cellRect.width * config_hour_divide;
+      return prevWidth;
     },
   },
   mounted() {},
@@ -120,10 +163,10 @@ export default {
     },
 
     getCellStatus(index) {
-      const isPrev = index < config_schedule_prev_hours * config_day_divide;
+      const isPrev = index < config_schedule_prev_hours * config_hour_divide;
       const isAfter =
         index >=
-        config_all_cells - config_schedule_prev_hours * config_day_divide;
+        config_all_cells - config_schedule_prev_hours * config_hour_divide;
 
       if (isPrev) return "isPrev";
       if (isAfter) return "isAfter";

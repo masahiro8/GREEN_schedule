@@ -38,21 +38,26 @@ export default {
     afterTime: {
       type: Number,
     },
-    dayDivide: {
+    hourDivide: {
       type: Number,
     },
     cellRectWidth: {
       type: Number,
       default: 0,
     },
+    timelabelHeight: {
+      type: Number,
+    },
   },
   computed: {
     // 1セルの分
     cellMin() {
-      return Math.floor(60 / this.dayDivide);
+      return Math.floor(60 / this.hourDivide);
     },
     cellStyle() {
-      return `width:${this.cellRectWidth * this.dayDivide}px`;
+      return `width:${this.cellRectWidth * this.hourDivide}px;height:${
+        this.timelabelHeight
+      }px`;
     },
     mainLabel() {
       let time = 0;
