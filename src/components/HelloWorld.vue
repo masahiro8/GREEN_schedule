@@ -181,7 +181,7 @@ export default {
 .schedule {
   overflow-x: scroll;
   overflow-y: hidden;
-  width: 50%;
+  width: 100%;
 }
 
 .scheduleInner {
