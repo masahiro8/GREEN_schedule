@@ -3,14 +3,18 @@
     <ul class="information">
       <div class="schedule__label">label</div>
       <!-- TODO:サマリー -->
+      <div>
+        <input type="checkbox" @change="onChangeForceChecked" />
+      </div>
       <!-- 予定情報 -->
       <div class="schedule__plan">
         <ScheduleInfo
           v-for="(item, index) in getPlans"
-          :key="`info_${item.id}`"
+          :key="`info_${item.schedule_id}`"
           :item="item"
           :index="index"
           :cellRect="cellRect"
+          :forchChecked="forchChecked"
           @onChange="onCheck"
         />
       </div>
@@ -31,7 +35,7 @@
         <div class="schedule__plan">
           <SchedulePlanCell
             v-for="(item, index) in getPlans"
-            :key="`plan_${item.id}`"
+            :key="`plan_${item.schedule_id}`"
             :index="index"
             :item="item"
             :cellRect="cellRect"
@@ -107,6 +111,7 @@ export default {
   data: () => {
     return {
       checkList: [],
+      forchChecked: false,
       cells: config_all_cells,
       total_hours: config_schedule_hours,
       prev_hours: config_schedule_prev_hours,
@@ -162,6 +167,10 @@ export default {
   },
   mounted() {},
   methods: {
+    onChangeForceChecked($event) {
+      this.forchChecked = $event.target.checked;
+      console.log($event.target.checked);
+    },
     // チェックリストを更新
     onCheck({ schedule_id, checked }) {
       let checkList = [...this.checkList];

@@ -6,7 +6,7 @@
     :style="getInformationSize"
   >
     <div class="information_col">
-      <input type="checkbox" @change="onChange" />
+      <input type="checkbox" @change="onChange" v-model="checked" />
     </div>
     <div class="information_col">{{ item.company_displayname }}</div>
     <div class="information_col">{{ item.location_name }}</div>
@@ -23,6 +23,7 @@ export default {
     this.$watch(
       () => this.forchChecked,
       (newValue, oldValue) => {
+        console.log("forchChecked", newValue, oldValue);
         if (newValue !== oldValue) {
           this.checked = newValue;
         }
