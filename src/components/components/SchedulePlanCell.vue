@@ -59,6 +59,7 @@ export default {
 
         // 開始位置
         const diffMinStart = differenceInMinutes(start, today);
+        console.log(start, today, diffMinStart);
         rect.x =
           this.todayStartX +
           diffMinStart * ((this.cellRect.width * this.hourDivide) / 60);

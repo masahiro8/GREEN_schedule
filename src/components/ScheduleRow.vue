@@ -10,7 +10,8 @@
           :key="`info_${item.id}`"
           :item="item"
           :index="index"
-          cellRect="cellRect"
+          :cellRect="cellRect"
+          @onChange="onCheck"
         />
       </div>
     </ul>
@@ -105,6 +106,7 @@ export default {
   },
   data: () => {
     return {
+      checkList: [],
       cells: config_all_cells,
       total_hours: config_schedule_hours,
       prev_hours: config_schedule_prev_hours,
@@ -160,6 +162,21 @@ export default {
   },
   mounted() {},
   methods: {
+    // チェックリストを更新
+    onCheck({ schedule_id, checked }) {
+      let checkList = [...this.checkList];
+      //trueの場合
+      if (checked) {
+        const result = checkList.find((id) => id === schedule_id);
+        if (!result) checkList.push(schedule_id);
+      } else {
+        checkList = checkList.filter((id) => {
+          return id !== schedule_id;
+        });
+      }
+      this.checkList = checkList;
+      console.log("__", schedule_id, checkList);
+    },
     getHorizontalLineTop(index) {
       const top = index * config_cell_height;
       return `top:${top}px`;
