@@ -1,18 +1,31 @@
 <template>
   <div id="app">
-    <img alt="Vue logo" src="./assets/logo.png" width="25%">
-    <HelloWorld msg="Hello Vue in CodeSandbox!"/>
+    <ScheduleRow
+      v-for="item in schedule.devices"
+      :key="item.device_id"
+      :item="item"
+      :today="schedule.date"
+    />
   </div>
 </template>
 
 <script>
-import HelloWorld from "./components/HelloWorld";
+import ScheduleRow from "./components/ScheduleRow";
+import response_device from "@/json/device_response.json";
 
 export default {
   name: "App",
+  data: () => {
+    return {
+      schedule: { ...response_device.contents.schedule },
+    };
+  },
+  mounted() {
+    console.log("mounted", this.schedule.date);
+  },
   components: {
-    HelloWorld
-  }
+    ScheduleRow,
+  },
 };
 </script>
 

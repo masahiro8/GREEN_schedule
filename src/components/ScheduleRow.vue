@@ -1,42 +1,62 @@
 <template>
-  <div class="schedule">
-    <div class="scheduleInner" :style="getDaySize">
-      <ScheduleTimeLabel
-        :timelabelHeight="timelabel_height"
-        :cellRectWidth="cellRect.width"
-        :totalTime="total_hours"
-        :prevTime="prev_hours"
-        :afterTime="after_hours"
-        :hourDivide="hour_divide"
-      />
-      <!-- 予定 -->
-      <SchedulePlanCell
-        v-for="(item, index) in getPlans"
-        :key="`plan_${item.id}`"
-        :index="index"
-        :item="item"
-        :cellRect="cellRect"
-        :hourDivide="hour_divide"
-        :today="getToday"
-        :todayStartX="getTodayStartX"
-        :marginTop="timelabel_height"
-      ></SchedulePlanCell>
-      <div class="scheduleBackground" :style="getDaySize">
-        <!-- 背景グリッド -->
-        <div
-          v-for="(item, index) in cells"
-          :key="`cell_${index}`"
-          class="scheduleCell"
-          :class="`${getCellStatus(index)} cell_${index}`"
-          :style="getCellStyle"
-        ></div>
-        <!-- 罫線 -->
-        <div
-          v-for="(item, index) in getHorizontalLines"
-          :key="`line_${index}`"
-          class="scheduleHorizontalLine"
-          :style="getHorizontalLineTop(index)"
-        ></div>
+  <div class="table">
+    <ul class="information">
+      <div class="schedule__label">label</div>
+      <!-- TODO:サマリー -->
+      <!-- 予定情報 -->
+      <div class="schedule__plan">
+        <ScheduleInfo
+          v-for="(item, index) in getPlans"
+          :key="`info_${item.id}`"
+          :item="item"
+          :index="index"
+          cellRect="cellRect"
+        />
+      </div>
+    </ul>
+    <div class="schedule">
+      <div class="scheduleInner" :style="getDaySize">
+        <!-- 時間表記 -->
+        <ScheduleTimeLabel
+          :timelabelHeight="timelabel_height"
+          :cellRectWidth="cellRect.width"
+          :totalTime="total_hours"
+          :prevTime="prev_hours"
+          :afterTime="after_hours"
+          :hourDivide="hour_divide"
+        />
+        <!-- TODO:サマリー -->
+        <!-- 予定 -->
+        <div class="schedule__plan">
+          <SchedulePlanCell
+            v-for="(item, index) in getPlans"
+            :key="`plan_${item.id}`"
+            :index="index"
+            :item="item"
+            :cellRect="cellRect"
+            :hourDivide="hour_divide"
+            :today="today"
+            :todayStartX="getTodayStartX"
+            :marginTop="timelabel_height"
+          ></SchedulePlanCell>
+        </div>
+        <div class="scheduleBackground" :style="getDaySize">
+          <!-- 背景グリッド -->
+          <div
+            v-for="(item, index) in cells"
+            :key="`cell_${index}`"
+            class="scheduleCell"
+            :class="`${getCellStatus(index)} cell_${index}`"
+            :style="getCellStyle"
+          ></div>
+          <!-- 罫線 -->
+          <div
+            v-for="(item, index) in getHorizontalLines"
+            :key="`line_${index}`"
+            class="scheduleHorizontalLine"
+            :style="getHorizontalLineTop(index)"
+          ></div>
+        </div>
       </div>
     </div>
   </div>
@@ -45,6 +65,8 @@
 <script>
 import ScheduleTimeLabel from "./components/ScheduleTimeLabel";
 import SchedulePlanCell from "./components/SchedulePlanCell";
+import ScheduleInfo from "./components/ScheduleInfo";
+
 /**
  * 前後 12時間を加えて、全部で48時間の幅を持つ
  */
@@ -79,38 +101,10 @@ export default {
   components: {
     ScheduleTimeLabel,
     SchedulePlanCell,
+    ScheduleInfo,
   },
   data: () => {
     return {
-      response: {
-        date: "2021-01-01 00:00:00",
-        plans: [
-          {
-            id: 1,
-            type: 1,
-            startTime: "2021-01-01 00:00:00",
-            endTime: "2021-01-01 4:30:00",
-          },
-          {
-            id: 2,
-            type: 1,
-            startTime: "2021-01-01 14:30:00",
-            endTime: "2021-01-01 15:30:00",
-          },
-          {
-            id: 3,
-            type: 1,
-            startTime: "2021-01-01 20:30:00",
-            endTime: "2021-01-01 21:30:00",
-          },
-          {
-            id: 4,
-            type: 1,
-            startTime: "2021-01-01 20:30:00",
-            endTime: "2021-01-02 00:30:00",
-          },
-        ],
-      },
       cells: config_all_cells,
       total_hours: config_schedule_hours,
       prev_hours: config_schedule_prev_hours,
@@ -120,32 +114,41 @@ export default {
       timelabel_height: config_timelabel_height,
     };
   },
+  props: {
+    item: {
+      type: Object,
+    },
+    today: {
+      type: String,
+    },
+  },
   computed: {
     getPlans() {
-      const { plans } = this.response;
-      return plans;
+      const { children } = this.item;
+      return children;
     },
-    getToday() {
-      const { date } = this.response;
-      return date;
+
+    // informationの高さ
+    getInformationSize() {
+      return `height:${config_cell_height}px`;
     },
     //スケジュールの大きさを表示する時間範囲によって変更
     getDaySize() {
-      const { plans } = this.response;
+      const { children } = this.item;
       return `width: ${config_all_cells * config_cell_width}px;height:${
-        plans.length * config_cell_height + config_timelabel_height
+        (children.length + 1) * config_cell_height + config_timelabel_height
       }px`;
     },
     //スケジュールの予定量にあわせて罫線を作成
     getHorizontalLines() {
-      const { plans } = this.response;
-      return [...new Array(plans.length)];
+      const { children } = this.item;
+      return [...new Array(children.length)];
     },
     //スケジュールのグリッドのスタイルを作成
     getCellStyle() {
-      const { plans } = this.response;
+      const { children } = this.item;
       return `width:${this.cellRect.width}px;height:${
-        this.cellRect.height * plans.length
+        this.cellRect.height * children.length
       }px;`;
     },
     //今日の開始ピクセル位置
@@ -178,6 +181,23 @@ export default {
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style lang="scss" scoped>
+.table {
+  width: 100%;
+  height: auto;
+  display: flex;
+}
+.information {
+  margin: 0;
+  padding: 0;
+  width: 50%;
+
+  .informatin_row {
+    display: flex;
+    justify-content: flex-start;
+    text-align: left;
+    font-size: 11px;
+  }
+}
 .schedule {
   overflow-x: scroll;
   overflow-y: hidden;
