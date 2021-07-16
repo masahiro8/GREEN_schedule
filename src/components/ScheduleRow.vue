@@ -1,73 +1,83 @@
 <template>
-  <div class="table">
-    <ul class="information">
-      <!-- ラベル -->
-      <div class="schedule__label">占有,スポット,禁止,重複</div>
-      <!-- TODO:サマリー -->
-      <div class="schedule__summary">
-        <button @click="toggleChild">tgl</button>
-        <input type="checkbox" @change="onChangeForceChecked" />
-      </div>
-      <!-- 予定情報 -->
-      <div v-if="isShowChild" class="schedule__plan">
-        <ScheduleInfo
-          v-for="(item, index) in getPlans"
-          :key="`info_${item.schedule_id}`"
-          :item="item"
-          :index="index"
-          :cellRect="cellRect"
-          :forchChecked="forchChecked"
-          @onChange="onCheck"
-        />
-      </div>
-    </ul>
-    <div class="schedule">
-      <div class="scheduleInner" :style="getDaySize">
-        <!-- 時間表記 -->
-        <div class="schedule__label">
-          <ScheduleTimeLabel
-            :timelabelHeight="timelabel_height"
-            :cellRectWidth="cellRect.width"
-            :totalTime="total_hours"
-            :prevTime="prev_hours"
-            :afterTime="after_hours"
-            :hourDivide="hour_divide"
+  <div class="">
+    <div class="table">
+      <ul class="information">
+        <!-- ラベル -->
+        <div class="schedule__label">占有,スポット,禁止,重複</div>
+        <!-- TODO:サマリー -->
+        <div class="schedule__summary">
+          <button @click="toggleChild">tgl</button>
+          <input type="checkbox" @change="onChangeForceChecked" />
+        </div>
+        <!-- 予定情報 -->
+        <div v-if="isShowChild" class="schedule__plan">
+          <ScheduleInfo
+            v-for="(item, index) in getPlans"
+            :key="`info_${item.schedule_id}`"
+            :item="item"
+            :index="index"
+            :cellRect="cellRect"
+            :forchChecked="forchChecked"
+            @onChange="onCheck"
           />
         </div>
-        <!-- TODO:サマリー -->
-        <div class="schedule__summary"></div>
-        <!-- 予定 -->
-        <div v-if="isShowChild" class="schedule__plan">
-          <SchedulePlanCell
-            v-for="(item, index) in getPlans"
-            :key="`plan_${item.schedule_id}`"
-            :index="index"
-            :item="item"
-            :cellRect="cellRect"
-            :hourDivide="hour_divide"
-            :today="today"
-            :todayStartX="getTodayStartX"
-            :marginTop="timelabel_height"
-          ></SchedulePlanCell>
-        </div>
-        <div v-if="isShowChild" class="scheduleBackground" :style="getDaySize">
-          <!-- 背景グリッド -->
+      </ul>
+      <div class="schedule">
+        <div class="scheduleInner" :style="getDaySize">
+          <!-- 時間表記 -->
+          <div class="schedule__label">
+            <ScheduleTimeLabel
+              :timelabelHeight="timelabel_height"
+              :cellRectWidth="cellRect.width"
+              :totalTime="total_hours"
+              :prevTime="prev_hours"
+              :afterTime="after_hours"
+              :hourDivide="hour_divide"
+            />
+          </div>
+          <!-- TODO:サマリー -->
+          <div class="schedule__summary"></div>
+          <!-- 予定 -->
+          <div v-if="isShowChild" class="schedule__plan">
+            <SchedulePlanCell
+              v-for="(item, index) in getPlans"
+              :key="`plan_${item.schedule_id}`"
+              :index="index"
+              :item="item"
+              :cellRect="cellRect"
+              :hourDivide="hour_divide"
+              :today="today"
+              :todayStartX="getTodayStartX"
+              :marginTop="timelabel_height"
+            ></SchedulePlanCell>
+          </div>
+          <!-- 背景 -->
           <div
-            v-for="(item, index) in cells"
-            :key="`cell_${index}`"
-            class="scheduleCell"
-            :class="`${getCellStatus(index)} cell_${index}`"
-            :style="getCellStyle"
-          ></div>
-          <!-- 罫線 -->
-          <div
-            v-for="(item, index) in getHorizontalLines"
-            :key="`line_${index}`"
-            class="scheduleHorizontalLine"
-            :style="getHorizontalLineTop(index)"
-          ></div>
+            v-if="isShowChild"
+            class="scheduleBackground"
+            :style="getDaySize"
+          >
+            <!-- 背景グリッド -->
+            <div
+              v-for="(item, index) in cells"
+              :key="`cell_${index}`"
+              class="scheduleCell"
+              :class="`${getCellStatus(index)} cell_${index}`"
+              :style="getCellStyle"
+            ></div>
+            <!-- 罫線 -->
+            <div
+              v-for="(item, index) in getHorizontalLines"
+              :key="`line_${index}`"
+              class="scheduleHorizontalLine"
+              :style="getHorizontalLineTop(index)"
+            ></div>
+          </div>
         </div>
       </div>
+    </div>
+    <div class="table_footer" v-if="isShowChild">
+      <button>load more</button>
     </div>
   </div>
 </template>
@@ -101,6 +111,9 @@ const config_cell_height = 32;
 
 //予定の上マージン
 const config_timelabel_height = 0;
+
+//さらに表示する高さ
+const config_loadmore_height = 64;
 
 //作業時間帯仮データ
 // const work_timeframe = { startTime: "12:00", endTime: "18:00" };
