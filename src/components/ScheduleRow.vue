@@ -3,7 +3,26 @@
     <div class="table">
       <ul class="information">
         <!-- ラベル -->
-        <div class="schedule__label">占有,スポット,禁止,重複</div>
+        <div class="schedule__label">
+          <div class="schedule__type-label">
+            <div>
+              <span class="type-circle"></span
+              ><span class="type-label">占有</span>
+            </div>
+            <div>
+              <span class="type-circle"></span
+              ><span class="type-label">スポット</span>
+            </div>
+            <div>
+              <span class="type-circle"></span
+              ><span class="type-label">禁止</span>
+            </div>
+            <div>
+              <span class="type-circle"></span
+              ><span class="type-label">重複</span>
+            </div>
+          </div>
+        </div>
         <!-- TODO:サマリー -->
         <div class="schedule__summary">
           <button @click="toggleChild">tgl</button>
@@ -240,22 +259,39 @@ export default {
   height: auto;
   display: flex;
 }
+
+.table_footer {
+  height: 36px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
 .information {
   margin: 0;
+  margin-left: 2px;
   padding: 0;
   width: 50%;
+  background-color: white;
 
   .informatin_row {
     display: flex;
     justify-content: flex-start;
     text-align: left;
     font-size: 11px;
+    border-left: 1px solid #efefef;
+    border-bottom: 1px solid #efefef;
+  }
+
+  .schedule__plan {
+    margin-left: 4px;
   }
 }
 .schedule {
   overflow-x: scroll;
   overflow-y: hidden;
   width: 100%;
+  background-color: white;
 }
 
 .scheduleInner {
@@ -265,16 +301,30 @@ export default {
 
 .schedule__label {
   height: 24px;
-  border: 1px solid red;
+}
+.schedule__type-label {
+  display: flex;
+  align-items: center;
+  .type-circle {
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+    background-color: black;
+    border-radius: 5px;
+    margin-right: 2px;
+  }
+  .type-label {
+    font-size: 10px;
+    height: 10px;
+    margin-right: 8px;
+  }
 }
 
 .schedule__summary {
   height: 37px;
-  border: 1px solid blue;
 }
 
 .schedule__plan {
-  border: 1px solid green;
   position: relative;
 }
 
