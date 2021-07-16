@@ -59,15 +59,17 @@ export default {
 
         // 開始位置
         const diffMinStart = differenceInMinutes(start, today);
-        // console.log(">>", start, today, diffMinStart);
+        console.log("--", start, today, this.todayStartX, diffMinStart);
         rect.x =
           this.todayStartX +
           diffMinStart * ((this.cellRect.width * this.hourDivide) / 60);
 
-        rect.top = this.index * this.cellRect.height + this.marginTop + 1;
-        rect.height = this.cellRect.height - 2;
+        rect.top = this.index * 2 * this.cellRect.height + this.marginTop;
+        rect.height = this.cellRect.height;
 
         this.style = `width:${rect?.width}px;height:${rect?.height}px;left:${rect?.x}px;top:${rect?.top}px;`;
+
+        // console.log(this.todayStartX, rect);
       },
       {
         immediate: true,

@@ -46,7 +46,7 @@
           <!-- 時間表記 -->
           <div class="schedule__label">
             <ScheduleTimeLabel
-              :timelabelHeight="timelabel_height"
+              :timelabelHeight="margin_top"
               :cellRectWidth="cellRect.width"
               :totalTime="total_hours"
               :prevTime="prev_hours"
@@ -55,7 +55,19 @@
             />
           </div>
           <!-- TODO:サマリー -->
-          <div class="schedule__summary"></div>
+          <div class="schedule__summary">
+            <ScheduleSummaryCell
+              v-for="(item, index) in getSummary"
+              :key="`summary_${index}`"
+              :index="index"
+              :item="item"
+              :cellRect="summaryRect"
+              :hourDivide="hour_divide"
+              :today="getToday"
+              :todayStartX="getTodayStartX"
+              :marginTop="margin_top"
+            ></ScheduleSummaryCell>
+          </div>
           <!-- 予定 -->
           <div v-if="isShowChild" class="schedule__plan">
             <SchedulePlanCell
@@ -65,9 +77,9 @@
               :item="item"
               :cellRect="cellRect"
               :hourDivide="hour_divide"
-              :today="today"
+              :today="getToday"
               :todayStartX="getTodayStartX"
-              :marginTop="timelabel_height"
+              :marginTop="margin_top"
             ></SchedulePlanCell>
           </div>
           <!-- 背景 -->
@@ -104,6 +116,7 @@
 <script>
 import ScheduleTimeLabel from "./components/ScheduleTimeLabel";
 import SchedulePlanCell from "./components/SchedulePlanCell";
+import ScheduleSummaryCell from "./components/ScheduleSummaryCell";
 import ScheduleInfo from "./components/ScheduleInfo";
 
 /**
@@ -129,7 +142,7 @@ const config_cell_width = 8;
 const config_cell_height = 32;
 
 //予定の上マージン
-const config_timelabel_height = 0;
+const config_margin_top = 0;
 
 //さらに表示する高さ
 const config_loadmore_height = 64;
@@ -144,6 +157,7 @@ export default {
   components: {
     ScheduleTimeLabel,
     SchedulePlanCell,
+    ScheduleSummaryCell,
     ScheduleInfo,
   },
   data: () => {
@@ -155,9 +169,10 @@ export default {
       total_hours: config_schedule_hours,
       prev_hours: config_schedule_prev_hours,
       after_hours: config_schedule_after_hours,
+      summaryRect: { width: config_cell_width, height: 1 },
       cellRect: { width: config_cell_width, height: config_cell_height },
       hour_divide: config_hour_divide,
-      timelabel_height: config_timelabel_height,
+      margin_top: config_margin_top,
     };
   },
   props: {
@@ -169,6 +184,14 @@ export default {
     },
   },
   computed: {
+    getToday() {
+      return `${this.today} 00:00:00`;
+    },
+    getSummary() {
+      const { schedule_summary } = this.item;
+      return schedule_summary;
+    },
+    // 子要素一覧
     getPlans() {
       const { children } = this.item;
       return children;
@@ -182,8 +205,8 @@ export default {
     getDaySize() {
       const { children } = this.item;
       const height = this.isShowChild
-        ? (children.length + 1) * config_cell_height + config_timelabel_height
-        : config_cell_height + config_timelabel_height;
+        ? (children.length + 2) * config_cell_height + config_margin_top
+        : config_cell_height + config_margin_top;
 
       return `width: ${
         config_all_cells * config_cell_width
@@ -192,13 +215,13 @@ export default {
     //スケジュールの予定量にあわせて罫線を作成
     getHorizontalLines() {
       const { children } = this.item;
-      return [...new Array(children.length)];
+      return [...new Array(children.length + 1)];
     },
     //スケジュールのグリッドのスタイルを作成
     getCellStyle() {
       const { children } = this.item;
       return `width:${this.cellRect.width}px;height:${
-        this.cellRect.height * children.length
+        this.cellRect.height * children.length + config_margin_top
       }px;`;
     },
     //今日の開始ピクセル位置
@@ -230,7 +253,7 @@ export default {
       console.log("__", schedule_id, checkList);
     },
     getHorizontalLineTop(index) {
-      const top = index * config_cell_height;
+      const top = index * config_cell_height + config_margin_top;
       return `top:${top}px`;
     },
 
@@ -268,6 +291,7 @@ export default {
 }
 
 .information {
+  position: relative;
   margin: 0;
   margin-left: 2px;
   padding: 0;
@@ -321,7 +345,9 @@ export default {
 }
 
 .schedule__summary {
+  position: relative;
   height: 37px;
+  top: 0;
 }
 
 .schedule__plan {
