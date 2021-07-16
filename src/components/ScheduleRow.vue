@@ -24,9 +24,20 @@
           </div>
         </div>
         <!-- TODO:サマリー -->
-        <div class="schedule__summary">
+        <div class="schedule__summary device__label">
           <button @click="toggleChild">tgl</button>
           <input type="checkbox" @change="onChangeForceChecked" />
+          <div class="device__name">
+            {{ item.device_name }}
+          </div>
+          <div class="device__description">
+            <div class="device__description-text">
+              {{ item.device_description[0] }}
+            </div>
+            <div class="device__description-text">
+              {{ item.device_description[1] }}
+            </div>
+          </div>
         </div>
         <!-- 予定情報 -->
         <div v-if="isShowChild" class="schedule__plan">
@@ -277,6 +288,8 @@ export default {
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style lang="scss" scoped>
+$border-color: #E5E5E5;
+
 .table {
   width: 100%;
   height: auto;
@@ -325,6 +338,7 @@ export default {
 
 .schedule__label {
   height: 24px;
+  border-bottom: 1px solid $border-color;
 }
 .schedule__type-label {
   display: flex;
@@ -391,5 +405,22 @@ export default {
   width: 100%;
   left: 0;
   background-color: #cfcfcf;
+}
+
+.device__label {
+  display: flex;
+  text-align: left;
+  align-items: center;
+  .device__name {
+    font-size: 14px;
+    min-width: 220px;
+  }
+  .device__description {
+    overflow: hidden;
+    font-size: 9px;
+  }
+  .device__description-text {
+    white-space: nowrap;
+  }
 }
 </style>
