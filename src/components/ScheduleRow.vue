@@ -1,13 +1,15 @@
 <template>
   <div class="table">
     <ul class="information">
-      <div class="schedule__label">label</div>
+      <!-- ラベル -->
+      <div class="schedule__label">占有,スポット,禁止,重複</div>
       <!-- TODO:サマリー -->
-      <div>
+      <div class="schedule__summary">
+        <button @click="toggleChild">tgl</button>
         <input type="checkbox" @change="onChangeForceChecked" />
       </div>
       <!-- 予定情報 -->
-      <div class="schedule__plan">
+      <div v-if="isShowChild" class="schedule__plan">
         <ScheduleInfo
           v-for="(item, index) in getPlans"
           :key="`info_${item.schedule_id}`"
@@ -22,17 +24,20 @@
     <div class="schedule">
       <div class="scheduleInner" :style="getDaySize">
         <!-- 時間表記 -->
-        <ScheduleTimeLabel
-          :timelabelHeight="timelabel_height"
-          :cellRectWidth="cellRect.width"
-          :totalTime="total_hours"
-          :prevTime="prev_hours"
-          :afterTime="after_hours"
-          :hourDivide="hour_divide"
-        />
+        <div class="schedule__label">
+          <ScheduleTimeLabel
+            :timelabelHeight="timelabel_height"
+            :cellRectWidth="cellRect.width"
+            :totalTime="total_hours"
+            :prevTime="prev_hours"
+            :afterTime="after_hours"
+            :hourDivide="hour_divide"
+          />
+        </div>
         <!-- TODO:サマリー -->
+        <div class="schedule__summary"></div>
         <!-- 予定 -->
-        <div class="schedule__plan">
+        <div v-if="isShowChild" class="schedule__plan">
           <SchedulePlanCell
             v-for="(item, index) in getPlans"
             :key="`plan_${item.schedule_id}`"
@@ -45,7 +50,7 @@
             :marginTop="timelabel_height"
           ></SchedulePlanCell>
         </div>
-        <div class="scheduleBackground" :style="getDaySize">
+        <div v-if="isShowChild" class="scheduleBackground" :style="getDaySize">
           <!-- 背景グリッド -->
           <div
             v-for="(item, index) in cells"
@@ -94,7 +99,8 @@ const config_all_cells = config_hour_divide * config_schedule_hours;
 const config_cell_width = 8;
 const config_cell_height = 32;
 
-const config_timelabel_height = 15;
+//予定の上マージン
+const config_timelabel_height = 0;
 
 //作業時間帯仮データ
 // const work_timeframe = { startTime: "12:00", endTime: "18:00" };
@@ -112,6 +118,7 @@ export default {
     return {
       checkList: [],
       forchChecked: false,
+      isShowChild: true,
       cells: config_all_cells,
       total_hours: config_schedule_hours,
       prev_hours: config_schedule_prev_hours,
@@ -142,9 +149,13 @@ export default {
     //スケジュールの大きさを表示する時間範囲によって変更
     getDaySize() {
       const { children } = this.item;
-      return `width: ${config_all_cells * config_cell_width}px;height:${
-        (children.length + 1) * config_cell_height + config_timelabel_height
-      }px`;
+      const height = this.isShowChild
+        ? (children.length + 1) * config_cell_height + config_timelabel_height
+        : config_cell_height + config_timelabel_height;
+
+      return `width: ${
+        config_all_cells * config_cell_width
+      }px;height:${height}px`;
     },
     //スケジュールの予定量にあわせて罫線を作成
     getHorizontalLines() {
@@ -201,6 +212,10 @@ export default {
       if (isAfter) return "isAfter";
       return null;
     },
+    toggleChild() {
+      this.isShowChild = !this.isShowChild;
+      console.log("toggleChild", this.isShowChild);
+    },
   },
 };
 </script>
@@ -233,6 +248,21 @@ export default {
 .scheduleInner {
   position: relative;
   height: 100%;
+}
+
+.schedule__label {
+  height: 24px;
+  border: 1px solid red;
+}
+
+.schedule__summary {
+  height: 37px;
+  border: 1px solid blue;
+}
+
+.schedule__plan {
+  border: 1px solid green;
+  position: relative;
 }
 
 //背景
